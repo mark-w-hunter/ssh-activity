@@ -38,9 +38,9 @@ class SSHCheck:
 
     def check_failed(self):
         """Check log for failed ssh attempts and return result."""
-        failed_attempts = []
-        failed_attempts.append("Failed ssh attempts:")
-        failed_attempts.append(len(failed_attempts[0]) * "-")
+        failed_attempts = ["Failed ssh attempts:"]
+        header_line = "-" * len(failed_attempts[0])
+        failed_attempts.append(header_line)
         with open(self._filepath) as authlog:
             for line in authlog:
                 if "preauth" in line and "user" in line:
@@ -52,9 +52,9 @@ class SSHCheck:
 
     def check_success(self):
         """Check log for successful ssh logins and return result."""
-        successful_logins = []
-        successful_logins.append("Successful ssh logins:")
-        successful_logins.append(len(successful_logins[0]) * "-")
+        successful_logins = ["Successful ssh logins:"]
+        header_line = "-" * len(successful_logins[0])
+        successful_logins.append(header_line)
         with open(self._filepath) as authlog:
             for line in authlog:
                 if "Accepted" in line:
@@ -100,7 +100,7 @@ def main():
     ssh_success = ssh_check.check_success()
     ssh_activity = ssh_failed + ssh_success
     ssh_report = SSHReport()
-    ssh_report.email_ssh_report(ssh_activity)
+    # ssh_report.email_ssh_report(ssh_activity)
     ssh_report.print_ssh_report(ssh_activity)
 
 
