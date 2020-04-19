@@ -34,14 +34,14 @@ import smtplib
 class SSHCheck:
     """Class for checking ssh activity."""
     def __init__(self):
-        self._filepath = "/var/log/auth.log"  # location of authentication log
+        self.filepath = "/var/log/auth.log"  # location of authentication log
 
     def check_failed(self):
         """Check log for failed ssh attempts and return result."""
         failed_attempts = ["Failed ssh attempts:"]
         header_line = "-" * len(failed_attempts[0])
         failed_attempts.append(header_line)
-        with open(self._filepath) as authlog:
+        with open(self.filepath) as authlog:
             for line in authlog:
                 if "preauth" in line and "user" in line:
                     fields = line.strip().split()
@@ -55,7 +55,7 @@ class SSHCheck:
         successful_logins = ["Successful ssh logins:"]
         header_line = "-" * len(successful_logins[0])
         successful_logins.append(header_line)
-        with open(self._filepath) as authlog:
+        with open(self.filepath) as authlog:
             for line in authlog:
                 if "Accepted" in line:
                     fields = line.strip().split()
@@ -68,26 +68,26 @@ class SSHCheck:
 class SSHReport:
     """Class for providing ssh activity results."""
     def __init__(self):
-        self._smtp_server = "localhost"
-        self._smtp_port = 25
-        self._sender_email = "username@localhost"  # replace with sender email
-        self._receiver_email = "username@localhost"  # replace with receiver email
-        self._server = smtplib.SMTP(self._smtp_server, self._smtp_port)
-        self._subject = "Subject: ssh activity\n\n"
-        self._header = "Host: " + socket.gethostname() + "\n\n"
+        self.smtp_server = "localhost"
+        self.smtp_port = 25
+        self.sender_email = "username@localhost"  # replace with sender email
+        self.receiver_email = "username@localhost"  # replace with receiver email
+        self.server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+        self.subject = "Subject: ssh activity\n\n"
+        self.header = "Host: " + socket.gethostname() + "\n\n"
 
     def email_ssh_report(self, results):
         """Send email report of ssh activity."""
-        body = self._header
+        body = self.header
         for instance in results:
             body += instance + "\n"
-        message = self._subject + body
+        message = self.subject + body
         if results:
-            self._server.sendmail(self._sender_email, self._receiver_email, message)
+            self.server.sendmail(self.sender_email, self.receiver_email, message)
 
     def print_ssh_report(self, results):
         """Print report of ssh activity."""
-        body = self._header
+        body = self.header
         for instance in results:
             body += instance + "\n"
         print(body)
