@@ -83,7 +83,7 @@ class SSHReport:
         try:
             smtp_server = smtplib.SMTP(self.smtp_server, self.smtp_port)
         except ConnectionRefusedError:
-            print("Error: No SMTP server available.")
+            print("error: SMTP server unreachable.")
             sys.exit(1)
         for instance in results:
             body += instance + "\n"
