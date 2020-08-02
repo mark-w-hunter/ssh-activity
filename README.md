@@ -1,3 +1,3 @@
 # ssh-activity
 
-Check for ssh activity and return results
+Check for SSH activity and return results
