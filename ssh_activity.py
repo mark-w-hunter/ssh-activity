@@ -29,6 +29,7 @@
 """Check for ssh activity and return results."""
 import socket
 import smtplib
+import sys
 
 
 class SSHCheck:
@@ -43,6 +44,7 @@ class SSHCheck:
         failed_attempts.append(header_line)
         with open(self.filepath) as authlog:
             for line in authlog:
+                # relies on rsyslog high precision timestamps
                 if "preauth" in line and "user" in line:
                     fields = line.strip().split()
                     attempt = fields[0] + " " + fields[7] + " " + fields[8]
@@ -72,18 +74,22 @@ class SSHReport:
         self.smtp_port = 25
         self.sender_email = "username@localhost"  # replace with sender email
         self.receiver_email = "username@localhost"  # replace with receiver email
-        self.server = smtplib.SMTP(self.smtp_server, self.smtp_port)
         self.subject = "Subject: ssh activity\n\n"
         self.header = "Host: " + socket.gethostname() + "\n\n"
 
     def email_ssh_report(self, results):
         """Send email report of ssh activity."""
         body = self.header
+        try:
+            smtp_server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+        except ConnectionRefusedError:
+            print("Error: No SMTP server available.")
+            sys.exit(1)
         for instance in results:
             body += instance + "\n"
         message = self.subject + body
         if results:
-            self.server.sendmail(self.sender_email, self.receiver_email, message)
+            smtp_server.sendmail(self.sender_email, self.receiver_email, message)
 
     def print_ssh_report(self, results):
         """Print report of ssh activity."""
@@ -100,8 +106,8 @@ def main():
     ssh_success = ssh_check.check_success()
     ssh_activity = ssh_failed + ssh_success
     ssh_report = SSHReport()
-    # ssh_report.email_ssh_report(ssh_activity)
     ssh_report.print_ssh_report(ssh_activity)
+    # ssh_report.email_ssh_report(ssh_activity)
 
 
 if __name__ == "__main__":
