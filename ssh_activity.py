@@ -38,8 +38,13 @@ class SSHCheck:
     def __init__(self):
         self.filepath = "/var/log/auth.log"  # location of authentication log
 
-    def check_failed(self):
-        """Check log for failed ssh attempts and return result."""
+    def check_failed(self) -> list:
+        """Check log for failed ssh attempts and return result.
+
+        Returns:
+            list: Failed login attempts.
+
+        """
         failed_attempts = ["Failed ssh attempts:"]
         header_line = "-" * len(failed_attempts[0])
         failed_attempts.append(header_line)
@@ -53,8 +58,13 @@ class SSHCheck:
         failed_attempts.append("")
         return failed_attempts
 
-    def check_success(self):
-        """Check log for successful ssh logins and return result."""
+    def check_success(self) -> list:
+        """Check log for successful ssh logins and return result.
+
+        Returns:
+            list: Successful logins.
+
+        """
         successful_logins = ["Successful ssh logins:"]
         header_line = "-" * len(successful_logins[0])
         successful_logins.append(header_line)
@@ -79,8 +89,16 @@ class SSHReport:
         self.subject = "Subject: ssh activity\n\n"
         self.header = "Host: " + socket.gethostname() + "\n\n"
 
-    def email_ssh_report(self, results):
-        """Send email report of ssh activity."""
+    def email_ssh_report(self, results: list):
+        """Send email report of ssh activity.
+
+        Args:
+            results (list): SSH report.
+
+        Returns:
+            None: Email SSH activity report.
+
+        """
         body = self.header
         try:
             smtp_server = smtplib.SMTP(self.smtp_server, self.smtp_port)
@@ -93,8 +111,16 @@ class SSHReport:
         if results:
             smtp_server.sendmail(self.sender_email, self.receiver_email, message)
 
-    def print_ssh_report(self, results):
-        """Print report of ssh activity."""
+    def print_ssh_report(self, results: list):
+        """Print report of ssh activity.
+
+        Args:
+            results (list): SSH report.
+
+        Returns:
+            None: Print SSH activity report.
+
+        """
         body = self.header
         for instance in results:
             body += instance + "\n"
