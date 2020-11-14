@@ -34,6 +34,7 @@ import sys
 
 class SSHCheck:
     """Class for checking ssh activity."""
+
     def __init__(self):
         self.filepath = "/var/log/auth.log"  # location of authentication log
 
@@ -69,6 +70,7 @@ class SSHCheck:
 
 class SSHReport:
     """Class for providing ssh activity results."""
+
     def __init__(self):
         self.smtp_server = "localhost"
         self.smtp_port = 25
