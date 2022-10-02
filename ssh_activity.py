@@ -30,6 +30,24 @@
 import socket
 import smtplib
 import sys
+from ipaddress import ip_address
+
+
+def is_valid_ip_address(ip_addr: str) -> bool:
+    """Checks input is a valid IPv4 or IPv6 address.
+
+    Args:
+        ip_addr (str): IP address to check.
+
+    Returns:
+        bool: True if IP address is valid, False if not.
+
+    """
+    try:
+        ip_address(ip_addr)
+    except ValueError:
+        return False
+    return True
 
 
 class SSHCheck:
@@ -54,6 +72,9 @@ class SSHCheck:
                 if "preauth" in line and "user" in line:
                     fields = line.strip().split()
                     attempt = fields[0] + " " + fields[7] + " " + fields[8]
+                    if len(fields) > 8:
+                        if is_valid_ip_address(fields[9]):
+                            attempt += " " + fields[9]
                     failed_attempts.append(attempt)
         failed_attempts.append("")
         return failed_attempts
