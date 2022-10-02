@@ -33,7 +33,7 @@ import sys
 from ipaddress import ip_address
 
 __author__ = "Mark W. Hunter"
-__version__ = "0.11"
+__version__ = "0.12"
 
 
 def is_valid_ip_address(ip_addr: str) -> bool:
