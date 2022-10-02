@@ -29,16 +29,7 @@
 """Check for ssh activity and return results."""
 import socket
 import smtplib
-from ipaddress import ip_address
-
-
-def is_valid_ip_address(ip_addr):
-    """Checks input is a valid IPv4 or IPv6 address."""
-    try:
-        ip_address(ip_addr)
-    except ValueError:
-        return False
-    return True
+import sys
 
 
 class SSHCheck:
@@ -47,25 +38,33 @@ class SSHCheck:
     def __init__(self):
         self.filepath = "/var/log/auth.log"  # location of authentication log
 
-    def check_failed(self):
-        """Check log for failed ssh attempts and return result."""
+    def check_failed(self) -> list:
+        """Check log for failed ssh attempts and return result.
+
+        Returns:
+            list: Failed login attempts.
+
+        """
         failed_attempts = ["Failed ssh attempts:"]
         header_line = "-" * len(failed_attempts[0])
         failed_attempts.append(header_line)
         with open(self.filepath) as authlog:
             for line in authlog:
+                # relies on rsyslog high precision timestamps
                 if "preauth" in line and "user" in line:
                     fields = line.strip().split()
                     attempt = fields[0] + " " + fields[7] + " " + fields[8]
-                    if len(fields) > 8:
-                        if is_valid_ip_address(fields[9]):
-                            attempt += " " + fields[9]
                     failed_attempts.append(attempt)
         failed_attempts.append("")
         return failed_attempts
 
-    def check_success(self):
-        """Check log for successful ssh logins and return result."""
+    def check_success(self) -> list:
+        """Check log for successful ssh logins and return result.
+
+        Returns:
+            list: Successful logins.
+
+        """
         successful_logins = ["Successful ssh logins:"]
         header_line = "-" * len(successful_logins[0])
         successful_logins.append(header_line)
@@ -85,23 +84,43 @@ class SSHReport:
     def __init__(self):
         self.smtp_server = "localhost"
         self.smtp_port = 25
-        self.sender_email = "mhunter@localhost"  # replace with sender email
-        self.receiver_email = "mhunter@localhost"  # replace with receiver email
-        self.server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+        self.sender_email = "username@localhost"  # replace with sender email
+        self.receiver_email = "username@localhost"  # replace with receiver email
         self.subject = "Subject: ssh activity\n\n"
         self.header = "Host: " + socket.gethostname() + "\n\n"
 
-    def email_ssh_report(self, results):
-        """Send email report of ssh activity."""
+    def email_ssh_report(self, results: list):
+        """Send email report of ssh activity.
+
+        Args:
+            results (list): SSH report.
+
+        Returns:
+            None: Email SSH activity report.
+
+        """
         body = self.header
+        try:
+            smtp_server = smtplib.SMTP(self.smtp_server, self.smtp_port)
+        except ConnectionRefusedError:
+            print("error: SMTP server unreachable.")
+            sys.exit(1)
         for instance in results:
             body += instance + "\n"
         message = self.subject + body
         if results:
-            self.server.sendmail(self.sender_email, self.receiver_email, message)
+            smtp_server.sendmail(self.sender_email, self.receiver_email, message)
 
-    def print_ssh_report(self, results):
-        """Print report of ssh activity."""
+    def print_ssh_report(self, results: list):
+        """Print report of ssh activity.
+
+        Args:
+            results (list): SSH report.
+
+        Returns:
+            None: Print SSH activity report.
+
+        """
         body = self.header
         for instance in results:
             body += instance + "\n"
@@ -115,8 +134,8 @@ def main():
     ssh_success = ssh_check.check_success()
     ssh_activity = ssh_failed + ssh_success
     ssh_report = SSHReport()
-    # ssh_report.email_ssh_report(ssh_activity)
     ssh_report.print_ssh_report(ssh_activity)
+    # ssh_report.email_ssh_report(ssh_activity)
 
 
 if __name__ == "__main__":
