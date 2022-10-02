@@ -6,7 +6,7 @@
 #
 # The MIT License (MIT)
 #
-# Copyright (c) 2020 Mark W. Hunter
+# Copyright (c) 2022 Mark W. Hunter
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,9 @@ import socket
 import smtplib
 import sys
 from ipaddress import ip_address
+
+__author__ = "Mark W. Hunter"
+__version__ = "0.11"
 
 
 def is_valid_ip_address(ip_addr: str) -> bool:
